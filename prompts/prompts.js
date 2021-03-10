@@ -18,8 +18,14 @@ const QUESTIONS = () => {
             case 'view all departments':
                 viewAllDepartment()
                 break;
+            case 'view all roles':
+                viewAllRoles()
+                break;
             case 'view all employees':
                 viewAllEmployees()
+                break;
+            case 'add a department':
+                addDepartment(answer)
                 break;
         }
     })
@@ -36,7 +42,8 @@ function viewAllDepartment() {
 }
 
 function viewAllRoles() {
-    const SQL_QUERY = 'SELECT * FROM roles';
+    const SQL_QUERY = `select title, role.id, department.name, salary
+    from role join department on role.department_id = department.id`;
     CON.query(SQL_QUERY, (err, results) => {
         if (err) return console.log(err);
         const TABLE = cTABLE.getTable(results);
@@ -45,9 +52,20 @@ function viewAllRoles() {
 }
 
 function viewAllEmployees() {
-    const SQL_QUERY = 'SELECT * FROM employee';
+    const SQL_QUERY = `select employee.id, first_name, last_name, role.title, department.name, salary, manager_id from employee join role on employee.role_id = role.id join department on role.department_id = department.id`;
+
     CON.query(SQL_QUERY, (err, results) => {
-        if (err) return console.log(err);
+        if (err) throw console.log(err);
+        const TABLE = cTABLE.getTable(results);
+        console.log(TABLE);
+    });
+}
+
+function addDepartment(answer) {
+    const SQL_QUERY = `INSERT INTO department (name) VALUE ?`;
+
+    CON.query(SQL_QUERY, [answer], (err, results) => {
+        if (err) throw console.log(err);
         const TABLE = cTABLE.getTable(results);
         console.log(TABLE);
     });
