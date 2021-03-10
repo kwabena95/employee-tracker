@@ -223,24 +223,37 @@ function addEmployee() {
 
 function updateEmployee() {
 
-
+    let namesArray = [];
+    // get all employee names
     const EMP_NAMES = CON.query(`SELECT first_name, last_name FROM employee`, (err, results) => {
+
         if (err) throw console.log(err);
-        results.forEach(name => {
-            const FIRST_NAME = name.first_name;
-            const LAST_NAME = name.last_name;
-            const RESULTS = `${FIRST_NAME} ${LAST_NAME}`;
-            return console.log(RESULTS);
-        });
+        results.filter(name => {
+            let first = name.first_name;
+            let last = name.last_name;
+            let fullname = `${first} ${last} `;
+            // namesArray.push(fullname);
+            console.log('THIS IS NAMES=====>>>>', fullname);
+            return fullname;
+        })
+
+        return results
+        // const FIRST_NAME = results.first_name;
+        // const LAST_NAME = results.last_name;
+        // const FULLNAME = `${FIRST_NAME} ${LAST_NAME}`;
+        // const RESULTS = namesArray.push(FULLNAME);
+        // console.log('THIS IS NAMES FROM EMPLOYEE TABLE==========>', RESULTS);
+        // return RESULTS;
+
 
     })
-
+    console.log('THIS IS OUTSIDE EMP_NAMES =========>>', EMP_NAMES);
     INQUIRER.prompt([
         {
             type: 'list',
             name: 'updateRole',
             message: 'Which employee would you like to update their role?',
-            choices: [EMP_NAMES],
+            choices: [],
             validate: dep_Input => {
                 if (dep_Input) {
                     return true;
