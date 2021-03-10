@@ -1,6 +1,7 @@
 const INQUIRER = require('inquirer');
 const CON = require('../connection/connect');
 const cTABLE = require('console.table');
+const inquirer = require('inquirer');
 
 
 const QUESTIONS = () => {
@@ -25,7 +26,16 @@ const QUESTIONS = () => {
                 viewAllEmployees()
                 break;
             case 'add a department':
-                addDepartment(answer)
+                addDepartment()
+                break;
+            case 'add a role':
+                addRole()
+                break;
+            case 'add an employee':
+                addEmployee()
+                break;
+            case 'update an employee role':
+                updateEmployee()
                 break;
         }
     })
@@ -61,14 +71,196 @@ function viewAllEmployees() {
     });
 }
 
-function addDepartment(answer) {
-    const SQL_QUERY = `INSERT INTO department (name) VALUE ?`;
+function addDepartment() {
 
-    CON.query(SQL_QUERY, [answer], (err, results) => {
-        if (err) throw console.log(err);
-        const TABLE = cTABLE.getTable(results);
-        console.log(TABLE);
+    INQUIRER.prompt([
+        {
+            type: 'input',
+            name: 'department',
+            message: 'Enter department name:',
+            validate: dep_Input => {
+                if (dep_Input) {
+                    return true;
+                } else {
+                    console.log('Please enter department name!');
+                    return false;
+                }
+            }
+        }
+    ]).then(answer => {
+        const SQL_QUERY = `INSERT INTO department (name) VALUE (?)`;
+
+        CON.query(SQL_QUERY, [answer.department], (err, results) => {
+            if (err) throw console.log(err);
+            const TABLE = cTABLE.getTable(results);
+            console.log(TABLE);
+        });
+    })
+
+}
+
+function addRole() {
+
+    INQUIRER.prompt([
+        {
+            type: 'input',
+            name: 'role_name',
+            message: 'Enter name of role:',
+            validate: roleName => {
+                if (roleName) {
+                    return true;
+                } else {
+                    console.log('Please enter role name!')
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'number',
+            name: 'salary',
+            message: 'Enter salary:',
+            validate: salaryInput => {
+                if (salaryInput) {
+                    return true;
+                } else {
+                    console.log('Please enter salary!')
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'number',
+            name: 'dep_id',
+            message: 'Enter department Id:',
+            validate: dep_id_Input => {
+                if (dep_id_Input) {
+                    return true;
+                } else {
+                    console.log('Please enter department Id!')
+                    return false;
+                }
+            }
+        }
+    ]).then(answer => {
+
+        const SQL_QUERY = `INSERT INTO role(title, salary, department_id) VALUES(?, ?, ?)`;
+        const PARAMS = [answer.role_name, answer.salary, answer.dep_id];
+        CON.query(SQL_QUERY, PARAMS, (err, results) => {
+            if (err) throw console.log(err);
+            const TABLE = cTABLE.getTable(results);
+            console.log('Role table has been updated successfully!', TABLE);
+        });
+    })
+}
+
+function addEmployee() {
+
+    INQUIRER.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'Enter employee\'s first name:',
+            validate: firstName => {
+                if (firstName) {
+                    return true;
+                } else {
+                    console.log('Please enter first name!')
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'Enter employee\'s last name:',
+            validate: lastName => {
+                if (lastName) {
+                    return true;
+                } else {
+                    console.log('Please enter last name!')
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'number',
+            name: 'role',
+            message: 'Enter employee\'s role:',
+            validate: roleInput => {
+                if (roleInput) {
+                    return true;
+                } else {
+                    console.log('Please enter employee\'s role!')
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'number',
+            name: 'manager',
+            message: 'Enter employee\'s manager id:',
+            validate: managerInput => {
+                if (managerInput) {
+                    return true;
+                } else {
+                    console.log('Please enter employee\'s manager id!')
+                    return false;
+                }
+            }
+        }
+    ]).then(answer => {
+
+        const SQL_QUERY = `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)`;
+        const PARAMS = [answer.first_name, answer.last_name, answer.role, answer.manager];
+        CON.query(SQL_QUERY, PARAMS, (err, results) => {
+            if (err) throw console.log(err);
+            const TABLE = cTABLE.getTable(results);
+            console.log('Role table has been updated successfully!', TABLE);
+        });
+        return console.log(answer);
     });
+}
+
+function updateEmployee() {
+
+
+    const EMP_NAMES = CON.query(`SELECT first_name, last_name FROM employee`, (err, results) => {
+        if (err) throw console.log(err);
+        results.forEach(name => {
+            const FIRST_NAME = name.first_name;
+            const LAST_NAME = name.last_name;
+            const RESULTS = `${FIRST_NAME} ${LAST_NAME}`;
+            return console.log(RESULTS);
+        });
+
+    })
+
+    INQUIRER.prompt([
+        {
+            type: 'list',
+            name: 'updateRole',
+            message: 'Which employee would you like to update their role?',
+            choices: [EMP_NAMES],
+            validate: dep_Input => {
+                if (dep_Input) {
+                    return true;
+                } else {
+                    console.log('Please enter department name!');
+                    return false;
+                }
+            }
+        }
+    ]).then(answer => {
+        // const SQL_QUERY = `INSERT INTO department (name) VALUE (?)`;
+
+        // CON.query(SQL_QUERY, [answer.department], (err, results) => {
+        //     if (err) throw console.log(err);
+        //     const TABLE = cTABLE.getTable(results);
+        //     console.log(TABLE);
+        // });
+
+        console.log(answer);
+    })
 }
 
 // viewAllDepartment();
