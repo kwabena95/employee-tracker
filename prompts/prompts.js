@@ -221,60 +221,55 @@ function addEmployee() {
     });
 }
 
+
+
+
+
+
+
+
+// getAllEmployeeNames()
+
 function updateEmployee() {
 
-    let namesArray = [];
-    // get all employee names
-    const EMP_NAMES = CON.query(`SELECT first_name, last_name FROM employee`, (err, results) => {
+    CON.query(`SELECT first_name, last_name FROM employee`, (err, results) => {
 
         if (err) throw console.log(err);
-        results.filter(name => {
-            let first = name.first_name;
-            let last = name.last_name;
-            let fullname = `${first} ${last} `;
-            // namesArray.push(fullname);
-            console.log('THIS IS NAMES=====>>>>', fullname);
-            return fullname;
-        })
 
-        return results
-        // const FIRST_NAME = results.first_name;
-        // const LAST_NAME = results.last_name;
-        // const FULLNAME = `${FIRST_NAME} ${LAST_NAME}`;
-        // const RESULTS = namesArray.push(FULLNAME);
-        // console.log('THIS IS NAMES FROM EMPLOYEE TABLE==========>', RESULTS);
-        // return RESULTS;
-
-
-    })
-    console.log('THIS IS OUTSIDE EMP_NAMES =========>>', EMP_NAMES);
-    INQUIRER.prompt([
-        {
-            type: 'list',
-            name: 'updateRole',
-            message: 'Which employee would you like to update their role?',
-            choices: [],
-            validate: dep_Input => {
-                if (dep_Input) {
-                    return true;
-                } else {
-                    console.log('Please enter department name!');
-                    return false;
+        INQUIRER.prompt([
+            {
+                type: 'list',
+                name: 'updateRole',
+                message: 'Which employee would you like to update their role?',
+                choices: [`${results[0].first_name} ${results[0].last_name}`],
+                validate: dep_Input => {
+                    if (dep_Input) {
+                        return true;
+                    } else {
+                        console.log('Please enter department name!');
+                        return false;
+                    }
                 }
             }
-        }
-    ]).then(answer => {
-        // const SQL_QUERY = `INSERT INTO department (name) VALUE (?)`;
+        ]).then(answer => {
+            // const SQL_QUERY = `INSERT INTO department (name) VALUE (?)`;
 
-        // CON.query(SQL_QUERY, [answer.department], (err, results) => {
-        //     if (err) throw console.log(err);
-        //     const TABLE = cTABLE.getTable(results);
-        //     console.log(TABLE);
-        // });
+            // CON.query(SQL_QUERY, [answer.department], (err, results) => {
+            //     if (err) throw console.log(err);
+            //     const TABLE = cTABLE.getTable(results);
+            //     console.log(TABLE);
+            // });
 
-        console.log(answer);
-    })
+            console.log('NAMES ==========>>>>', answer);
+        })
+
+
+    });
+
 }
+
+
+
 
 // viewAllDepartment();
 module.exports = QUESTIONS;
