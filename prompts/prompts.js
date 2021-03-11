@@ -185,19 +185,19 @@ function addEmployee() {
         {
             type: 'number',
             name: 'role',
-            message: 'Enter employee\'s role:',
+            message: 'Enter employee\'s roleId:',
             validate: roleInput => {
                 if (roleInput) {
                     return true;
                 } else {
-                    console.log('Please enter employee\'s role!')
+                    console.log('Please enter employee\'s roleId!')
                     return false;
                 }
             }
         },
         {
             type: 'number',
-            name: 'manager',
+            name: 'managerId',
             message: 'Enter employee\'s manager id:',
             validate: managerInput => {
                 if (managerInput) {
@@ -211,7 +211,7 @@ function addEmployee() {
     ]).then(answer => {
 
         const SQL_QUERY = `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)`;
-        const PARAMS = [answer.first_name, answer.last_name, answer.role, answer.manager];
+        const PARAMS = [answer.first_name, answer.last_name, answer.role, answer.managerId];
         CON.query(SQL_QUERY, PARAMS, (err, results) => {
             if (err) throw console.log(err);
             const TABLE = cTABLE.getTable(results);
@@ -232,16 +232,20 @@ function addEmployee() {
 
 function updateEmployee() {
 
-    CON.query(`SELECT first_name, last_name FROM employee`, (err, results) => {
+    CON.query(`SELECT employee.id, first_name, last_name, role.title, role_id
+    FROM employee JOIN role ON employee.role_id = role.id`, (err, results) => {
 
         if (err) throw console.log(err);
+        const employeeChoices = results.map(({ role_id, first_name, last_name }) => ({
+            name: `${first_name} ${last_name} role_id: ${role_id}`,
+        }));
 
         INQUIRER.prompt([
             {
                 type: 'list',
                 name: 'updateRole',
                 message: 'Which employee would you like to update their role?',
-                choices: [`${results[0].first_name} ${results[0].last_name}`],
+                choices: employeeChoices,
                 validate: dep_Input => {
                     if (dep_Input) {
                         return true;
@@ -252,19 +256,54 @@ function updateEmployee() {
                 }
             }
         ]).then(answer => {
-            // const SQL_QUERY = `INSERT INTO department (name) VALUE (?)`;
 
-            // CON.query(SQL_QUERY, [answer.department], (err, results) => {
-            //     if (err) throw console.log(err);
-            //     const TABLE = cTABLE.getTable(results);
-            //     console.log(TABLE);
-            // });
+            if (answer) {
 
-            console.log('NAMES ==========>>>>', answer);
+                INQUIRER.prompt([
+                    {
+                        type: 'input',
+                        name: 'roleName',
+                        message: 'Enter new role:',
+                        validate: role_Input => {
+                            if (role_Input) {
+                                return true;
+                            } else {
+                                console.log('Please enter new role!');
+                                return false;
+                            }
+                        }
+                    },
+
+                    {
+                        type: 'number',
+                        name: 'id',
+                        message: 'Enter role id:',
+                        validate: id_Input => {
+                            if (id_Input) {
+                                return true;
+                            } else {
+                                console.log('Please employee id!');
+                                return false;
+                            }
+                        }
+                    }
+
+                ]).then(answer => {
+                    const SQL_QUERY = `UPDATE role SET title = ? WHERE id = ?`;
+
+                    CON.query(SQL_QUERY, [answer.roleName, answer.id], (err, results) => {
+                        if (err) throw console.log(err);
+                        const TABLE = cTABLE.getTable(results);
+                        console.log(TABLE);
+                    });
+                })
+            }
         })
+    })
 
 
-    });
+
+
 
 }
 
